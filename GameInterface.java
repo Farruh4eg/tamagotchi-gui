@@ -8,9 +8,9 @@ import java.awt.event.ActionListener;
 
 public class GameInterface extends JFrame {
     public static Tamagotchi tamagotchi;
-    private List<Food> availableFood;
     private static Boolean initialized = false, playOnDeath = false;
     private static JProgressBar hungerLevel, thirstLevel, happinessLevel;
+    private List<Food> availableFood;
 
     public GameInterface(Tamagotchi tamagotchi) {
         super("Тамагочи");
@@ -25,6 +25,7 @@ public class GameInterface extends JFrame {
 
         JButton playButton = new JButton("Поиграть с " + tamagotchi.getNickname());
         JButton foodButton = new JButton("Еда");
+        JButton miniGameButton = new JButton("Мини-игры");
 
         // stats panel (located in right panel)
         JPanel statsPanel = new JPanel();
@@ -97,6 +98,7 @@ public class GameInterface extends JFrame {
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 50, 0));
         buttonsPanel.add(playButton);
         buttonsPanel.add(foodButton);
+        buttonsPanel.add(miniGameButton);
 
         // right panel
         JPanel rightPanel = new JPanel();
@@ -123,7 +125,7 @@ public class GameInterface extends JFrame {
         gamePanel.add(petPanel, BorderLayout.CENTER);
         gamePanel.add(rightPanel, BorderLayout.EAST);
 
-        addListeners(playButton, foodButton);
+        addListeners(playButton, foodButton, miniGameButton);
 
         setContentPane(gamePanel);
         setSize(1280, 720);
@@ -131,7 +133,56 @@ public class GameInterface extends JFrame {
         setVisible(true);
     }
 
-    private void addListeners(JButton playButton, JButton foodButton) {
+    public static void updateStats(int hunger, int thirst, int happiness) {
+        if (hunger <= 0 || thirst <= 0 || happiness <= 0) {
+            death();
+        }
+        GameInterface.tamagotchi.setHunger(hunger);
+        GameInterface.tamagotchi.setThirst(thirst);
+        GameInterface.tamagotchi.setHappiness((hunger + thirst + tamagotchi.getHappiness()) / 3);
+        updateProgressBars();
+    }
+
+    public static boolean isInitialized() {
+        return initialized;
+    }
+
+    public static void setInitialized(Boolean initialized) {
+        GameInterface.initialized = initialized;
+    }
+
+    private static void updateProgressBars() {
+        int hungerLevel = tamagotchi.getHunger(), thirstLevel = tamagotchi.getThirst();
+        int happinessLevel = (hungerLevel + thirstLevel + GameInterface.tamagotchi.getHappiness()) / 3;
+        GameInterface.hungerLevel.setValue(hungerLevel);
+        GameInterface.thirstLevel.setValue(thirstLevel);
+        GameInterface.happinessLevel.setValue(happinessLevel);
+    }
+
+    private static void death() {
+        if (!playOnDeath) {
+            new Play("./static/death.gif", GameInterface.tamagotchi, true);
+            playOnDeath = true;
+        }
+    }
+
+    public static void setTamagotchi(Tamagotchi tamagotchi) {
+        GameInterface.tamagotchi = tamagotchi;
+    }
+
+    public static void setHungerLevel(JProgressBar hungerLevel) {
+        GameInterface.hungerLevel = hungerLevel;
+    }
+
+    public static void setThirstLevel(JProgressBar thirstLevel) {
+        GameInterface.thirstLevel = thirstLevel;
+    }
+
+    public static void setHappinessLevel(JProgressBar happinessLevel) {
+        GameInterface.happinessLevel = happinessLevel;
+    }
+
+    private void addListeners(JButton playButton, JButton foodButton, JButton miniGameButton) {
         playButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 Random random = new Random();
@@ -156,54 +207,11 @@ public class GameInterface extends JFrame {
                 new FoodTable(availableFood);
             }
         });
-    }
 
-    public static void updateStats(int hunger, int thirst, int happiness) {
-        if (hunger <= 0 || thirst <= 0 || happiness <= 0) {
-            death();
-        }
-        GameInterface.tamagotchi.setHunger(hunger);
-        GameInterface.tamagotchi.setThirst(thirst);
-        GameInterface.tamagotchi.setHappiness((hunger + thirst + tamagotchi.getHappiness()) / 3);
-        updateProgressBars();
-    }
-
-    public static boolean isInitialized() {
-        return initialized;
-    }
-
-    private static void updateProgressBars() {
-        int hungerLevel = tamagotchi.getHunger(), thirstLevel = tamagotchi.getThirst();
-        int happinessLevel = (hungerLevel + thirstLevel + GameInterface.tamagotchi.getHappiness()) / 3;
-        GameInterface.hungerLevel.setValue(hungerLevel);
-        GameInterface.thirstLevel.setValue(thirstLevel);
-        GameInterface.happinessLevel.setValue(happinessLevel);
-    }
-
-    private static void death() {
-        if (!playOnDeath) {
-            new Play("./static/death.gif", GameInterface.tamagotchi, true);
-            playOnDeath = true;
-        }
-    }
-
-    public static void setTamagotchi(Tamagotchi tamagotchi) {
-        GameInterface.tamagotchi = tamagotchi;
-    }
-
-    public static void setInitialized(Boolean initialized) {
-        GameInterface.initialized = initialized;
-    }
-
-    public static void setHungerLevel(JProgressBar hungerLevel) {
-        GameInterface.hungerLevel = hungerLevel;
-    }
-
-    public static void setThirstLevel(JProgressBar thirstLevel) {
-        GameInterface.thirstLevel = thirstLevel;
-    }
-
-    public static void setHappinessLevel(JProgressBar happinessLevel) {
-        GameInterface.happinessLevel = happinessLevel;
+        miniGameButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                new MiniGame(tamagotchi);
+            }
+        });
     }
 }
