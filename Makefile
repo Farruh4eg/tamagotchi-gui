@@ -5,7 +5,7 @@ JC = javac
 .java.class:
 	$(JC) $<
 
-CLASSES = Drink.class Food.class FoodTable.class GameController.class GameInterface.class ITamagotchi.class Main.class MakefileGenerator.class Menu.class MiniGame.class Play.class SolidFood.class Tamagotchi.class TicTacToe.class 
+CLASSES = Main.class Food.class ITamagotchi.class GameInterface.class Tamagotchi.class Drink.class MiniGame.class SolidFood.class FoodTable.class MakefileGenerator.class Menu.class GameController.class Whackamole.class TicTacToe.class Play.class 
 
 all: $(CLASSES)
 
