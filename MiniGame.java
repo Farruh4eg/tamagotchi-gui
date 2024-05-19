@@ -5,22 +5,24 @@ import java.awt.event.*;
 public class MiniGame extends JFrame {
 
     private static int ticTacToeDifficultyLevel;
-    final private JButton[][] buttons;
+    private JButton[][] buttons;
     private Tamagotchi tamagotchi;
     private boolean isPlayerX;
+    private static int gamePicked;
 
     public MiniGame(Tamagotchi tamagotchi) {
         this.tamagotchi = tamagotchi;
         setTitle("Мини-игры");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(1024, 768);
-        setResizable(false);
-        setLayout(new GridLayout(3, 3));
 
-        buttons = new JButton[3][3];
-        isPlayerX = true;
-
-        initializeButtons();
+        if (gamePicked == 0) {
+            setSize(1024, 768);
+            setResizable(false);
+            setLayout(new GridLayout(3, 3));
+            buttons = new JButton[3][3];
+            isPlayerX = true;
+            initializeButtons();
+        }
 
         SwingUtilities.invokeLater(() -> {
             init();
@@ -28,14 +30,16 @@ public class MiniGame extends JFrame {
     }
 
     private static int showDifficultyDialog() {
-        String[] options = {"Легкий", "Средний", "Сложный", "Невозможный"};
-        int response = JOptionPane.showOptionDialog(null, "Выберите сложность", "Сложность", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+        String[] options = { "Легкий", "Средний", "Сложный", "Невозможный" };
+        int response = JOptionPane.showOptionDialog(null, "Выберите сложность", "Сложность", JOptionPane.DEFAULT_OPTION,
+                JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
         return response;
     }
 
     private static int showGameChooser() {
-        String[] options = {"Крестики-нолики"};
-        int response = JOptionPane.showOptionDialog(null, "Выберите игру", "Мини-игры", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+        String[] options = { "Крестики-нолики", "Ударь крота" };
+        int response = JOptionPane.showOptionDialog(null, "Выберите игру", "Мини-игры", JOptionPane.DEFAULT_OPTION,
+                JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
         return response;
     }
 
@@ -43,8 +47,14 @@ public class MiniGame extends JFrame {
         int gameChoice = showGameChooser();
         if (gameChoice != -1) {
             switch (gameChoice) {
-                default:
+                case 0:
+                    gamePicked = 0;
                     pickTicTacToe();
+                    break;
+                case 1:
+                    gamePicked = 1;
+                    new Whackamole();
+                    break;
             }
         } else {
             dispose();
@@ -54,12 +64,19 @@ public class MiniGame extends JFrame {
     private void pickTicTacToe() {
         int choice = showDifficultyDialog();
         if (choice != -1) {
-            ticTacToeDifficultyLevel = switch (choice) {
-                case 1 -> 3;
-                case 2 -> 4;
-                case 3 -> 8;
-                default -> 2;
-            };
+            switch (choice) {
+                case 1:
+                    ticTacToeDifficultyLevel = 3;
+                    break;
+                case 2:
+                    ticTacToeDifficultyLevel = 4;
+                    break;
+                case 3:
+                    ticTacToeDifficultyLevel = 8;
+                    break;
+                default:
+                    ticTacToeDifficultyLevel = 2;
+            }
         } else {
             dispose();
             return;
@@ -80,7 +97,8 @@ public class MiniGame extends JFrame {
     }
 
     private boolean isGameOver() {
-        return TicTacToe.hasWon(TicTacToe.board, "X") || TicTacToe.hasWon(TicTacToe.board, "O") || TicTacToe.availableMoves(TicTacToe.board).isEmpty();
+        return TicTacToe.hasWon(TicTacToe.board, "X") || TicTacToe.hasWon(TicTacToe.board, "O")
+                || TicTacToe.availableMoves(TicTacToe.board).isEmpty();
     }
 
     private void endGame() {
@@ -102,7 +120,7 @@ public class MiniGame extends JFrame {
         int row = bestMove[0];
         int col = bestMove[1];
         buttons[row][col].setText("O");
-        TicTacToe.doMove(TicTacToe.board, new int[]{row, col}, "O");
+        TicTacToe.doMove(TicTacToe.board, new int[] { row, col }, "O");
 
         if (isGameOver()) {
             endGame();
@@ -136,7 +154,7 @@ public class MiniGame extends JFrame {
             if (TicTacToe.board[row][col].isEmpty()) {
                 String symbol = isPlayerX ? "X" : "O";
                 buttons[row][col].setText(symbol);
-                TicTacToe.doMove(TicTacToe.board, new int[]{row, col}, symbol);
+                TicTacToe.doMove(TicTacToe.board, new int[] { row, col }, symbol);
 
                 if (isGameOver()) {
                     endGame();
